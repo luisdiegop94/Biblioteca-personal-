@@ -99,9 +99,16 @@
             const showAuthorHighlight = mode !== "title";
             const card = document.createElement("article");
             card.className = "book-card";
+            const coverSrc = book.coverId
+                ? `https://covers.openlibrary.org/b/id/${book.coverId}-M.jpg`
+                : book.coverUrl || null;
+            const coverInner = coverSrc
+                ? `<img class="book-cover-img" src="${escapeHtml(coverSrc)}" alt="Portada de ${escapeHtml(book.title)}" loading="lazy" onerror="this.parentElement.classList.add('cover-fallback');this.remove();">
+                   <span class="book-cover-fallback-title">${escapeHtml(book.title)}</span>`
+                : `<span class="book-cover-fallback-title">${escapeHtml(book.title)}</span>`;
             card.innerHTML = `
-                <div class="book-cover" style="background-color: ${colorFor(book.title)};">
-                    <h3 class="book-cover-title">${escapeHtml(book.title)}</h3>
+                <div class="book-cover ${coverSrc ? '' : 'cover-fallback'}" style="background-color: ${colorFor(book.title)};">
+                    ${coverInner}
                 </div>
                 <div class="book-info">
                     <h2 class="book-title">${showTitleHighlight ? highlight(book.title, query) : escapeHtml(book.title)}</h2>
