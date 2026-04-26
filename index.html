@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Biblioteca Personal</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1>Mi Biblioteca Personal</h1>
+            <p class="tagline">Una réplica digital de mi colección de libros</p>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div class="container">
+            <div class="search-controls">
+                <input
+                    type="search"
+                    id="search-input"
+                    placeholder="Buscar por título o autor..."
+                    aria-label="Buscar libros"
+                    autocomplete="off"
+                >
+                <select id="filter-by" aria-label="Filtrar búsqueda">
+                    <option value="all">Título y autor</option>
+                    <option value="title">Solo título</option>
+                    <option value="author">Solo autor</option>
+                </select>
+                <select id="sort-by" aria-label="Ordenar libros">
+                    <option value="title-asc">Título (A-Z)</option>
+                    <option value="title-desc">Título (Z-A)</option>
+                    <option value="author-asc">Autor (A-Z)</option>
+                    <option value="author-desc">Autor (Z-A)</option>
+                </select>
+            </div>
+            <p class="results-count" id="results-count"></p>
+        </div>
+    </section>
+
+    <main class="container">
+        <div id="book-grid" class="book-grid"></div>
+        <p id="empty-state" class="empty-state" hidden>
+            No se encontraron libros que coincidan con tu búsqueda.
+        </p>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>Biblioteca personal &middot; <span id="total-count"></span> libros catalogados</p>
+        </div>
+    </footer>
+
+    <script src="js/books.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
