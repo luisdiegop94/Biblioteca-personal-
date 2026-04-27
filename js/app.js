@@ -162,7 +162,7 @@
             const card = document.createElement("article");
             card.className = "book-card";
             const coverSrc = book.coverId
-                ? `https://covers.openlibrary.org/b/id/${book.coverId}-M.jpg`
+                ? `https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`
                 : book.coverUrl || null;
             const coverInner = coverSrc
                 ? `<img class="book-cover-img" src="${escapeHtml(coverSrc)}" alt="Portada de ${escapeHtml(book.title)}" loading="lazy" onerror="this.parentElement.classList.add('cover-fallback');this.remove();">

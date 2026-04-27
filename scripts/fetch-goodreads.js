@@ -37,13 +37,16 @@ function parseItems(xml) {
             extractField(block, "book_medium_image_url") ||
             extractField(block, "book_image_url") ||
             "";
+        const cleanImage = imageUrl.includes("nophoto")
+            ? ""
+            : imageUrl.replace(/\._[A-Z0-9_]+_\.(jpg|png)$/i, ".$1");
         items.push({
             title: extractField(block, "title"),
             author: extractField(block, "author_name"),
             rating: parseInt(extractField(block, "user_rating") || "0", 10) || 0,
             readAt: extractField(block, "user_read_at"),
             shelves: extractField(block, "user_shelves"),
-            imageUrl: imageUrl.replace(/\._[A-Z0-9_]+_\.jpg$/i, ".jpg")
+            imageUrl: cleanImage
         });
     }
     return items;

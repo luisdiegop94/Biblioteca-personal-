@@ -41,6 +41,7 @@ function parseSearchResults(html) {
         const titleMatch = block.match(/<span itemprop='name' role='heading'[^>]*>([^<]+)<\/span>/);
         const authorMatch = block.match(/<a class="authorName"[^>]*>\s*<span itemprop="name">([^<]+)<\/span>/);
         if (!coverMatch || !titleMatch) continue;
+        if (coverMatch[1].includes("nophoto")) continue; // Goodreads placeholder
         // Remove size suffix to get full-resolution image
         const cover = coverMatch[1].replace(/\._[A-Z0-9_]+_\.jpg$/i, ".jpg");
         results.push({
