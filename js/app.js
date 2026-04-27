@@ -77,12 +77,24 @@
         const sorted = [...list];
         const compare = (a, b) =>
             normalize(a).localeCompare(normalize(b), "es");
+        const ratingDesc = (a, b) => {
+            const ra = a.rating || -1;
+            const rb = b.rating || -1;
+            return rb - ra;
+        };
+        const ratingAsc = (a, b) => {
+            // Unrated books go last in both directions
+            const ra = a.rating || Infinity;
+            const rb = b.rating || Infinity;
+            return ra - rb;
+        };
         sorted.sort((a, b) => {
             switch (mode) {
                 case "title-desc": return compare(b.title, a.title);
                 case "author-asc": return compare(a.author, b.author) || compare(a.title, b.title);
                 case "author-desc": return compare(b.author, a.author) || compare(a.title, b.title);
-                case "rating-desc": return (b.rating || 0) - (a.rating || 0) || compare(a.title, b.title);
+                case "rating-desc": return ratingDesc(a, b) || compare(a.title, b.title);
+                case "rating-asc": return ratingAsc(a, b) || compare(a.title, b.title);
                 case "title-asc":
                 default: return compare(a.title, b.title);
             }
