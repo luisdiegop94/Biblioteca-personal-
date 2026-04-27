@@ -9,7 +9,23 @@ const DOW_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes",
 const MONTH_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 function todayParts() {
   const d = new Date();
-  return { dow: DOW_ES[d.getDay()], num: d.getDate(), monYear: `de ${MONTH_ES[d.getMonth()]}, ${d.getFullYear()}` };
+  return {
+    dow: DOW_ES[d.getDay()],
+    num: d.getDate(),
+    monYear: `de ${MONTH_ES[d.getMonth()]}, ${d.getFullYear()}`
+  };
+}
+function shadeD(hex, pct) {
+  const h = hex.replace("#", "");
+  const n = parseInt(h, 16);
+  let r = n >> 16 & 0xff,
+    g = n >> 8 & 0xff,
+    b = n & 0xff;
+  const f = pct / 100;
+  r = Math.max(0, Math.min(255, Math.round(r + r * f)));
+  g = Math.max(0, Math.min(255, Math.round(g + g * f)));
+  b = Math.max(0, Math.min(255, Math.round(b + b * f)));
+  return "#" + (r << 16 | g << 8 | b).toString(16).padStart(6, "0");
 }
 function CoverD({
   book,
@@ -194,20 +210,220 @@ function DetailD({
     className: "d-detail-note"
   }, "Reposando en el estante de ", /*#__PURE__*/React.createElement("em", null, LD.shelfFor(book)), ".")))));
 }
+function StatsPanelD({
+  books,
+  onSelectBook
+}) {
+  const stats = LD.computeStats(books);
+  const owned = books.filter(b => b.owned !== false);
+  const readOnly = books.filter(b => b.owned === false);
+  const reading = LD.currentlyReading(owned);
+
+  // Rating histogram (5..1)
+  const ratingHist = [5, 4, 3, 2, 1].map(r => ({
+    rating: r,
+    count: books.filter(b => b.rating === r).length
+  }));
+  const maxRating = Math.max(1, ...ratingHist.map(r => r.count));
+
+  // Top shelves (extended to 12)
+  const shelfCounts = {};
+  owned.forEach(b => {
+    const s = LD.shelfFor(b);
+    shelfCounts[s] = (shelfCounts[s] || 0) + 1;
+  });
+  const topShelves = Object.entries(shelfCounts).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const maxShelf = topShelves.length ? topShelves[0][1] : 1;
+
+  // Top authors among owned
+  const authorCounts = {};
+  owned.forEach(b => {
+    authorCounts[b.author] = (authorCounts[b.author] || 0) + 1;
+  });
+  const topAuthors = Object.entries(authorCounts).filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-panel"
+  }, /*#__PURE__*/React.createElement("header", {
+    className: "d-stats-header"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-eyebrow"
+  }, "Resumen editorial"), /*#__PURE__*/React.createElement("h2", {
+    className: "d-stats-h"
+  }, "El estado de la biblioteca"), /*#__PURE__*/React.createElement("p", {
+    className: "d-stats-sub"
+  }, "Una colecci\xF3n de ", stats.total, " vol\xFAmenes \u2014 ", stats.owned, " en estanter\xEDa, ", readOnly.length, " le\xEDdos sin tener.")), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-grid"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card d-stats-card-wide"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "Total"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num d-stats-num-xl"
+  }, stats.total), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-cap"
+  }, "vol\xFAmenes registrados")), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "En la biblioteca"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num"
+  }, stats.owned)), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "Le\xEDdos sin tener"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num"
+  }, readOnly.length)), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "Calificaci\xF3n promedio"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num"
+  }, stats.avgRating.toFixed(2)), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-cap"
+  }, "de cinco estrellas")), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "Le\xEDdos"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num",
+    style: {
+      color: "#6b7a3a"
+    }
+  }, stats.read)), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "Leyendo"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num",
+    style: {
+      color: "#b8593a"
+    }
+  }, stats.reading)), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-label"
+  }, "Por leer"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-num",
+    style: {
+      color: "#7a6b54"
+    }
+  }, stats.toRead))), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-cols"
+  }, /*#__PURE__*/React.createElement("section", {
+    className: "d-stats-section"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "d-stats-h3"
+  }, "Distribuci\xF3n por calificaci\xF3n"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-rating-hist"
+  }, ratingHist.map(r => /*#__PURE__*/React.createElement("div", {
+    key: r.rating,
+    className: "d-stats-rating-row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "d-stats-rating-stars"
+  }, "★".repeat(r.rating), "★".repeat(5 - r.rating).replace(/./g, "·")), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-rating-bar"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: r.count / maxRating * 100 + "%"
+    }
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "d-stats-rating-count"
+  }, r.count))))), /*#__PURE__*/React.createElement("section", {
+    className: "d-stats-section"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "d-stats-h3"
+  }, "Estantes principales"), /*#__PURE__*/React.createElement("ol", {
+    className: "d-stats-shelflist"
+  }, topShelves.map(([name, c]) => /*#__PURE__*/React.createElement("li", {
+    key: name
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "d-stats-shelflist-name"
+  }, name), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-shelflist-bar"
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: c / maxShelf * 100 + "%"
+    }
+  })), /*#__PURE__*/React.createElement("span", {
+    className: "d-stats-shelflist-count"
+  }, c)))))), topAuthors.length > 0 && /*#__PURE__*/React.createElement("section", {
+    className: "d-stats-section"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "d-stats-h3"
+  }, "Autores con m\xE1s vol\xFAmenes"), /*#__PURE__*/React.createElement("ul", {
+    className: "d-stats-authors"
+  }, topAuthors.map(([name, n]) => /*#__PURE__*/React.createElement("li", {
+    key: name
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "d-stats-author-name"
+  }, name), /*#__PURE__*/React.createElement("span", {
+    className: "d-stats-author-count"
+  }, n))))), reading.length > 0 && /*#__PURE__*/React.createElement("section", {
+    className: "d-stats-section"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "d-stats-h3"
+  }, "En curso"), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-reading-row"
+  }, reading.map((b, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    className: "d-stats-reading-card",
+    onClick: () => onSelectBook(b)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-reading-cover"
+  }, /*#__PURE__*/React.createElement(CoverD, {
+    book: b,
+    size: "M"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-reading-meta"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-reading-title"
+  }, b.title), /*#__PURE__*/React.createElement("div", {
+    className: "d-stats-reading-author"
+  }, b.author)))))));
+}
+const SECTION_META = {
+  library: {
+    label: "Estantes",
+    empty: "No hay libros en tu biblioteca."
+  },
+  readonly: {
+    label: "Leídos sin tener",
+    empty: "No has marcado libros como leídos sin tener."
+  },
+  toread: {
+    label: "Por leer",
+    empty: "No tienes libros marcados como “por leer”."
+  },
+  stats: {
+    label: "Estadísticas",
+    empty: ""
+  }
+};
 function ConceptD({
   books
 }) {
+  const [section, setSection] = useStateD("library");
   const [organize, setOrganize] = useStateD("shelf");
   const [view, setView] = useStateD("cover");
   const [query, setQuery] = useStateD("");
   const [selected, setSelected] = useStateD(null);
   const [sideOpen, setSideOpen] = useStateD(false);
   const owned = useMemoD(() => books.filter(b => b.owned !== false), [books]);
+  const readOnly = useMemoD(() => books.filter(b => b.owned === false), [books]);
+  const toRead = useMemoD(() => books.filter(b => b.status === "to-read"), [books]);
   const stats = useMemoD(() => LD.computeStats(books), [books]);
   const reading = useMemoD(() => LD.currentlyReading(owned), [owned]);
-  const filtered = useMemoD(() => owned.filter(b => LD.matches(b, query)), [owned, query]);
+  const sectionBooks = useMemoD(() => {
+    if (section === "readonly") return readOnly;
+    if (section === "toread") return toRead;
+    return owned;
+  }, [section, owned, readOnly, toRead]);
+  const filtered = useMemoD(() => sectionBooks.filter(b => LD.matches(b, query)), [sectionBooks, query]);
   const grouped = useMemoD(() => LD.groupBooks(filtered, organize), [filtered, organize]);
   const today = todayParts();
+  const isStats = section === "stats";
+  const tagline = section === "library" ? `Tu biblioteca: ${owned.length} volúmenes — leídos, leyéndose, esperando turno.` : section === "readonly" ? `${readOnly.length} libros que has leído pero no están en la estantería.` : section === "toread" ? `${toRead.length} libros marcados como pendientes de lectura.` : `Vista panorámica de la colección completa (${stats.total} volúmenes).`;
   return /*#__PURE__*/React.createElement("div", {
     className: "d-app"
   }, /*#__PURE__*/React.createElement("header", {
@@ -218,13 +434,11 @@ function ConceptD({
     className: "d-mast-marque"
   }, "Catalogus"), /*#__PURE__*/React.createElement("nav", {
     className: "d-mast-nav"
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "d-mast-nav-btn is-active"
-  }, "Estantes"), /*#__PURE__*/React.createElement("button", {
-    className: "d-mast-nav-btn"
-  }, "Por leer"), /*#__PURE__*/React.createElement("button", {
-    className: "d-mast-nav-btn"
-  }, "Estad\xEDsticas"))), /*#__PURE__*/React.createElement("div", {
+  }, Object.entries(SECTION_META).map(([k, m]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    className: "d-mast-nav-btn " + (section === k ? "is-active" : ""),
+    onClick: () => setSection(k)
+  }, m.label)))), /*#__PURE__*/React.createElement("div", {
     className: "d-mast-mid"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
     className: "d-mast-title"
@@ -232,7 +446,7 @@ function ConceptD({
     className: "d-mast-amp"
   }, "&"), "su orden secreto"), /*#__PURE__*/React.createElement("p", {
     className: "d-mast-tagline"
-  }, "Una colecci\xF3n personal de ", stats.total, " vol\xFAmenes \u2014 le\xEDdos, ley\xE9ndose, esperando turno.")), /*#__PURE__*/React.createElement("div", {
+  }, tagline)), /*#__PURE__*/React.createElement("div", {
     className: "d-mast-date"
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-date-dow"
@@ -356,7 +570,7 @@ function ConceptD({
     }, progress, "%")));
   }))), /*#__PURE__*/React.createElement("main", {
     className: "d-main"
-  }, /*#__PURE__*/React.createElement("div", {
+  }, !isStats && /*#__PURE__*/React.createElement("div", {
     className: "d-toolbar"
   }, /*#__PURE__*/React.createElement("input", {
     className: "d-search",
@@ -381,7 +595,12 @@ function ConceptD({
   }, "Portadas"), /*#__PURE__*/React.createElement("button", {
     className: "d-chip " + (view === "spine" ? "is-on" : ""),
     onClick: () => setView("spine")
-  }, "Lomos"))), /*#__PURE__*/React.createElement("div", {
+  }, "Lomos"))), isStats ? /*#__PURE__*/React.createElement(StatsPanelD, {
+    books: books,
+    onSelectBook: setSelected
+  }) : grouped.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "d-empty"
+  }, SECTION_META[section].empty) : /*#__PURE__*/React.createElement("div", {
     className: "d-shelves"
   }, grouped.map(([name, list], i) => /*#__PURE__*/React.createElement(ShelfD, {
     key: name,
@@ -395,17 +614,5 @@ function ConceptD({
     book: selected,
     onClose: () => setSelected(null)
   }));
-}
-function shadeD(hex, pct) {
-  const h = hex.replace("#", "");
-  const n = parseInt(h, 16);
-  let r = n >> 16 & 0xff,
-    g = n >> 8 & 0xff,
-    b = n & 0xff;
-  const f = pct / 100;
-  r = Math.max(0, Math.min(255, Math.round(r + r * f)));
-  g = Math.max(0, Math.min(255, Math.round(g + g * f)));
-  b = Math.max(0, Math.min(255, Math.round(b + b * f)));
-  return "#" + (r << 16 | g << 8 | b).toString(16).padStart(6, "0");
 }
 window.ConceptD = ConceptD;
