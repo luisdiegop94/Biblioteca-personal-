@@ -1,0 +1,46 @@
+name: Sync Goodreads
+
+# Re-syncs the user's public Goodreads shelves into js/books.js once per
+# day. Scheduled workflows only run on the repository's default branch,
+# so this kicks in automatically once the changes from the feature
+# branch are merged.
+
+on:
+  schedule:
+    # 14:00 UTC = 8:00 AM Costa Rica (UTC-6)
+    - cron: '0 14 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-goodreads
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sync Goodreads shelves
+        run: node scripts/fetch-goodreads.js
+
+      - name: Commit and push if changed
+        run: |
+          if git diff --quiet -- js/books.js; then
+            echo "No changes to books.js — skipping commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/books.js
+          git commit -m "Sync Goodreads shelves [automated]"
+          git push
