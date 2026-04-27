@@ -442,9 +442,7 @@ function ConceptD({
     className: "d-mast-mid"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
     className: "d-mast-title"
-  }, "La Biblioteca", /*#__PURE__*/React.createElement("span", {
-    className: "d-mast-amp"
-  }, "&"), "su orden secreto"), /*#__PURE__*/React.createElement("p", {
+  }, "La Biblioteca"), /*#__PURE__*/React.createElement("p", {
     className: "d-mast-tagline"
   }, tagline)), /*#__PURE__*/React.createElement("div", {
     className: "d-mast-date"
