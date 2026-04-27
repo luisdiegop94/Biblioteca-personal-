@@ -83,8 +83,6 @@ const books = [
     { title: "Quién es quién en la pintura de Goya", author: "Pedro Jesús Fernández", category: "Arte", coverId: 12717205 },
     { title: "Guía de Razonamiento Lógico Matemático", author: "AMP", category: "Matemáticas" },
     { title: "Breve historia contemporánea de Costa Rica", author: "Héctor Pérez Brignoli", category: "Historia", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1677794976i/3684777.jpg" },
-    { title: "Vita Breve: Juana de Arco", author: "Mary Gordon", category: "Biografía", coverId: 1365384 },
-    { title: "Mi Dios", author: "Mohandas Gandhi", category: "Espiritualidad", coverId: 3326270 },
     { title: "El monje que vendió su Ferrari", author: "Robin S. Sharma", category: "Autoayuda", coverId: 48817 },
     { title: "Cómo ganar amigos e influir sobre las personas", author: "Dale Carnegie", category: "Autoayuda", coverId: 13195013 },
     { title: "Memorias de un primate", author: "Robert Sapolsky", category: "Memorias / Ciencia", coverId: 12329605, status: "read", rating: 5 },
