@@ -10,10 +10,26 @@
     const searchInput = document.getElementById("search-input");
     const filterBy = document.getElementById("filter-by");
     const sortBy = document.getElementById("sort-by");
+    const statusFilter = document.getElementById("status-filter");
     const grid = document.getElementById("book-grid");
     const emptyState = document.getElementById("empty-state");
     const resultsCount = document.getElementById("results-count");
     const totalCount = document.getElementById("total-count");
+
+    const statusLabels = {
+        "read": "Leído",
+        "reading": "Leyendo",
+        "to-read": "Por leer"
+    };
+
+    const renderStars = (rating) => {
+        let html = '<div class="book-rating" aria-label="' + rating + ' de 5 estrellas">';
+        for (let i = 1; i <= 5; i++) {
+            html += `<span class="star${i <= rating ? " filled" : ""}">★</span>`;
+        }
+        html += "</div>";
+        return html;
+    };
 
     const colorFor = (key) => {
         let hash = 0;
@@ -66,6 +82,7 @@
                 case "title-desc": return compare(b.title, a.title);
                 case "author-asc": return compare(a.author, b.author) || compare(a.title, b.title);
                 case "author-desc": return compare(b.author, a.author) || compare(a.title, b.title);
+                case "rating-desc": return (b.rating || 0) - (a.rating || 0) || compare(a.title, b.title);
                 case "title-asc":
                 default: return compare(a.title, b.title);
             }
@@ -73,12 +90,21 @@
         return sorted;
     };
 
+    const matchesStatus = (book, status) => {
+        if (status === "all") return true;
+        if (status === "none") return !book.status;
+        return book.status === status;
+    };
+
     const render = () => {
         const query = searchInput.value.trim();
         const mode = filterBy.value;
         const sortMode = sortBy.value;
+        const status = statusFilter.value;
 
-        const filtered = books.filter((b) => matches(b, query, mode));
+        const filtered = books
+            .filter((b) => matches(b, query, mode))
+            .filter((b) => matchesStatus(b, status));
         const sorted = sortBooks(filtered, sortMode);
 
         grid.innerHTML = "";
@@ -106,13 +132,19 @@
                 ? `<img class="book-cover-img" src="${escapeHtml(coverSrc)}" alt="Portada de ${escapeHtml(book.title)}" loading="lazy" onerror="this.parentElement.classList.add('cover-fallback');this.remove();">
                    <span class="book-cover-fallback-title">${escapeHtml(book.title)}</span>`
                 : `<span class="book-cover-fallback-title">${escapeHtml(book.title)}</span>`;
+            const badge = book.status
+                ? `<span class="status-badge status-${book.status}">${statusLabels[book.status] || book.status}</span>`
+                : "";
+            const stars = book.rating ? renderStars(book.rating) : "";
             card.innerHTML = `
                 <div class="book-cover ${coverSrc ? '' : 'cover-fallback'}" style="background-color: ${colorFor(book.title)};">
+                    ${badge}
                     ${coverInner}
                 </div>
                 <div class="book-info">
                     <h2 class="book-title">${showTitleHighlight ? highlight(book.title, query) : escapeHtml(book.title)}</h2>
                     <p class="book-author">${showAuthorHighlight ? highlight(book.author, query) : escapeHtml(book.author)}</p>
+                    ${stars}
                     ${book.category ? `<p class="book-meta">${escapeHtml(book.category)}</p>` : ""}
                 </div>
             `;
@@ -130,6 +162,7 @@
     searchInput.addEventListener("input", debouncedRender);
     filterBy.addEventListener("change", render);
     sortBy.addEventListener("change", render);
+    statusFilter.addEventListener("change", render);
 
     totalCount.textContent = books.length;
     render();

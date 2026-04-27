@@ -211,6 +211,42 @@ main {
     font-style: italic;
 }
 
+.status-badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    z-index: 2;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.status-badge.status-read { background: #2e7d4f; }
+.status-badge.status-reading { background: #2c6fa6; }
+.status-badge.status-to-read { background: #c87d2c; }
+
+.book-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem;
+    line-height: 1;
+}
+
+.book-rating .star {
+    color: #d8c8b0;
+}
+.book-rating .star.filled {
+    color: #e8a32c;
+}
+
 .book-meta {
     margin: 0.25rem 0 0;
     color: var(--ink-soft);
