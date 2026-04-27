@@ -32,24 +32,26 @@
 
   // Group categories into broader buckets so the shelf labels feel curated, not random.
   // Returns the "shelf" name for a book.
+  // More specific patterns must come first; the first matching rule wins.
   const SHELF_RULES = [
-    { name: "Filosofía y pensamiento", match: /filosof|estoicismo|ensayo/i },
-    { name: "Ciencia y naturaleza", match: /ciencia|biolog|neuro|f[ií]sica|qu[ií]mica|matem|naturaleza|divulgaci|et[oó]log|ling/i },
-    { name: "Historia", match: /historia|hist[oó]ric/i },
-    { name: "Política y sociedad", match: /pol[ií]t|social|antrop|sociolog|periodism|cr[oó]nica/i },
-    { name: "Economía y negocios", match: /econom|negocio|finan|marketing|negociaci|estrategia|organizacion/i },
-    { name: "Psicología", match: /psicolog|conductu|memoria/i },
-    { name: "Novela y literatura", match: /novela|literatura|cuento|cl[aá]sic|antolog|j[uú]venil|poes[ií]a|cr[oó]nica/i },
+    { name: "Manga y cómics", match: /manga|c[oó]mic/i },
     { name: "Ciencia ficción y fantasía", match: /ciencia ficci|fantas|dist[oó]p|m[ií]stica/i },
     { name: "Mitología y épica", match: /mitolog|[eé]pica|folclor|leyenda/i },
-    { name: "Arte y diseño", match: /arte|dise[ñn]o|urbanism/i },
-    { name: "Tecnología", match: /tecnolog|electr[oó]nica/i },
+    { name: "Misterio y aventura", match: /misterio|aventura|policiac|thriller|terror/i },
     { name: "Memorias y biografías", match: /memoria|biograf|autobiograf/i },
+    { name: "Novela y literatura", match: /novela|literatura|cuento|cl[aá]sic|antolog|j[uú]venil|poes[ií]a|cr[oó]nica|romance/i },
+    { name: "Filosofía y pensamiento", match: /filosof|estoicismo|ensayo/i },
+    { name: "Psicología", match: /psicolog|conductu/i },
     { name: "Espiritualidad", match: /espiritu|oriental|zen|religion/i },
-    { name: "Manga y cómics", match: /manga|c[oó]mic/i },
+    { name: "Historia", match: /historia|hist[oó]ric/i },
+    { name: "Política y sociedad", match: /pol[ií]t|sociedad|sociolog|antrop|periodism/i },
+    { name: "Economía y negocios", match: /econom|negocio|finan|marketing|negociaci|estrategia|organizacion|emprend|mercadeo/i },
+    { name: "Tecnología", match: /tecnolog|electr[oó]nica|programaci|inform[aá]tica/i },
+    { name: "Ciencia y naturaleza", match: /ciencia|biolog|neuro|f[ií]sica|qu[ií]mica|matem|naturaleza|divulgaci|et[oó]log|ling[uü]/i },
+    { name: "Arte y diseño", match: /arte|dise[ñn]o|urbanism|m[uú]sica|cine|fotograf/i },
     { name: "Autoayuda", match: /autoayuda/i },
-    { name: "Misterio y aventura", match: /misterio|aventura|policiac/i },
-    { name: "Desarrollo y sostenibilidad", match: /desarrollo|sostenib|agricult|rural|alimentaci/i },
+    { name: "Gastronomía", match: /gastronom|cocina|cookbook/i },
+    { name: "Desarrollo y sostenibilidad", match: /desarrollo|sostenib|agricult|rural|alimentaci|medio ambiente/i },
   ];
   const shelfFor = (book) => {
     const cat = book.category || "";
