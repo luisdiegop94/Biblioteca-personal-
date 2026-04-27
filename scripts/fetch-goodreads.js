@@ -149,7 +149,11 @@ const titleAliases = {
     "Frankenstein": ["Frankenstein; or, The Modern Prometheus"],
     "Orgullo y prejuicio": ["Pride and Prejudice"],
     "Las aventuras de Sherlock Holmes": ["The Adventures of Sherlock Holmes"],
-    "Charlatanes": ["Charlatans"]
+    "Charlatanes": ["Charlatans"],
+    "Hijos de la Bruma I: El Imperio Final": ["Mistborn", "The Final Empire", "Mistborn: The Final Empire"],
+    "Hijos de la Bruma II: El Pozo de la Ascensión": ["The Well of Ascension", "Mistborn"],
+    "Hijos de la Bruma III: El Héroe de las Eras": ["The Hero of Ages", "Mistborn"],
+    "Mito y significado": ["Myth and Meaning"]
 };
 
 const cleanTitle = (t) =>
@@ -289,6 +293,22 @@ function cleanGrTitle(t) {
     console.log("Fetching to-read shelf...");
     const toRead = await fetchAllPages("to-read");
     console.log(`To-read: ${toRead.length}\n`);
+
+    // Refuse to overwrite books.js if Goodreads returned nothing — likely a
+    // transient network or rate-limit failure, and proceeding would silently
+    // wipe the read-but-not-owned section and clear every status/rating.
+    if (read.length === 0 && reading.length === 0 && toRead.length === 0) {
+        console.error("All Goodreads shelves returned 0 items — aborting without writing.");
+        process.exit(1);
+    }
+    if (read.length < 50) {
+        console.error(
+            `Goodreads "read" shelf returned only ${read.length} items, ` +
+            `well below the expected hundreds. Aborting without writing to ` +
+            `avoid losing data. Re-run later.`
+        );
+        process.exit(1);
+    }
 
     const allBooks = loadBooks();
     // Drop any previously-added "read but not owned" entries before re-syncing.
