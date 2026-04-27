@@ -129,19 +129,27 @@ function ShelfD({
   onSelect,
   selected,
   view,
-  idx
+  idx,
+  collapsed,
+  onToggle
 }) {
   return /*#__PURE__*/React.createElement("section", {
-    className: "d-shelf"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "d-shelf-tag"
+    className: "d-shelf " + (collapsed ? "is-collapsed" : "")
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "d-shelf-tag",
+    onClick: onToggle,
+    "aria-expanded": !collapsed
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-shelf-tag-num"
   }, "N.\xBA ", String(idx).padStart(2, "0")), /*#__PURE__*/React.createElement("h3", {
     className: "d-shelf-tag-title"
   }, title), /*#__PURE__*/React.createElement("div", {
     className: "d-shelf-tag-count"
-  }, books.length, " libros")), /*#__PURE__*/React.createElement("div", {
+  }, books.length, " libros"), /*#__PURE__*/React.createElement("span", {
+    className: "d-shelf-tag-arrow",
+    "aria-hidden": "true"
+  }, "\u25BE")), !collapsed && /*#__PURE__*/React.createElement("div", {
     className: "d-shelf-display " + (view === "spine" ? "is-spine" : "is-cover")
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-shelf-back"
@@ -409,6 +417,16 @@ function ConceptD({
   const [query, setQuery] = useStateD("");
   const [selected, setSelected] = useStateD(null);
   const [sideOpen, setSideOpen] = useStateD(false);
+  const [collapsed, setCollapsed] = useStateD(new Set());
+  const toggleShelf = name => {
+    setCollapsed(prev => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);else next.add(name);
+      return next;
+    });
+  };
+  const collapseAll = names => setCollapsed(new Set(names));
+  const expandAll = () => setCollapsed(new Set());
   const owned = useMemoD(() => books.filter(b => b.owned !== false), [books]);
   const readOnly = useMemoD(() => books.filter(b => b.owned === false), [books]);
   const toRead = useMemoD(() => books.filter(b => b.status === "to-read"), [books]);
@@ -593,7 +611,12 @@ function ConceptD({
   }, "Portadas"), /*#__PURE__*/React.createElement("button", {
     className: "d-chip " + (view === "spine" ? "is-on" : ""),
     onClick: () => setView("spine")
-  }, "Lomos"))), isStats ? /*#__PURE__*/React.createElement(StatsPanelD, {
+  }, "Lomos")), /*#__PURE__*/React.createElement("div", {
+    className: "d-toolbar-group"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "d-chip",
+    onClick: () => collapsed.size === grouped.length ? expandAll() : collapseAll(grouped.map(([n]) => n))
+  }, collapsed.size === grouped.length && grouped.length > 0 ? "Expandir todo" : "Contraer todo"))), isStats ? /*#__PURE__*/React.createElement(StatsPanelD, {
     books: books,
     onSelectBook: setSelected
   }) : grouped.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -607,7 +630,9 @@ function ConceptD({
     view: view,
     onSelect: setSelected,
     selected: selected,
-    idx: i + 1
+    idx: i + 1,
+    collapsed: collapsed.has(name),
+    onToggle: () => toggleShelf(name)
   }))))), /*#__PURE__*/React.createElement(DetailD, {
     book: selected,
     onClose: () => setSelected(null)

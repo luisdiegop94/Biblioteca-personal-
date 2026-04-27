@@ -221,7 +221,11 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
   margin-bottom: 12px;
   width: fit-content;
   position: relative; z-index: 2;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  transition: background 0.15s;
 }
+.d-shelf-tag:hover { background: var(--paper-2); }
+.d-shelf-tag:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .d-shelf-tag::after {
   content: ""; position: absolute;
   top: 100%; left: 16px;
@@ -229,6 +233,14 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
   border: 6px solid transparent;
   border-top-color: var(--ink);
 }
+.d-shelf.is-collapsed .d-shelf-tag { margin-bottom: 0; }
+.d-shelf.is-collapsed .d-shelf-tag::after { display: none; }
+.d-shelf-tag-arrow {
+  font-family: var(--sans); font-size: 14px;
+  color: var(--ink-soft); margin-left: 4px;
+  transition: transform 0.2s;
+}
+.d-shelf.is-collapsed .d-shelf-tag-arrow { transform: rotate(-90deg); }
 .d-shelf-tag-num {
   font-family: var(--sans); font-size: 10px;
   letter-spacing: 0.2em; color: var(--ink-soft);
