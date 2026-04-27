@@ -96,13 +96,37 @@
         return book.status === status;
     };
 
+    const matchesSection = (book, section) => {
+        if (section === "all") return true;
+        if (section === "library") return book.owned !== false;
+        if (section === "read-only") return book.owned === false;
+        return true;
+    };
+
+    let currentSection = "library";
+    const tabs = document.querySelectorAll(".tab");
+    tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+            currentSection = tab.dataset.section;
+            tabs.forEach((t) => {
+                const active = t === tab;
+                t.classList.toggle("is-active", active);
+                t.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            // Hide status filter for "read-only" since they're all read
+            statusFilter.style.display = currentSection === "read-only" ? "none" : "";
+            render();
+        });
+    });
+
     const render = () => {
         const query = searchInput.value.trim();
         const mode = filterBy.value;
         const sortMode = sortBy.value;
         const status = statusFilter.value;
 
-        const filtered = books
+        const sectionBooks = books.filter((b) => matchesSection(b, currentSection));
+        const filtered = sectionBooks
             .filter((b) => matches(b, query, mode))
             .filter((b) => matchesStatus(b, status));
         const sorted = sortBooks(filtered, sortMode);
@@ -115,9 +139,9 @@
         }
         emptyState.hidden = true;
         resultsCount.textContent =
-            sorted.length === books.length
-                ? `Mostrando todos los libros (${books.length})`
-                : `${sorted.length} ${sorted.length === 1 ? "libro encontrado" : "libros encontrados"}`;
+            sorted.length === sectionBooks.length
+                ? `Mostrando ${sectionBooks.length} libros`
+                : `${sorted.length} de ${sectionBooks.length} ${sorted.length === 1 ? "libro" : "libros"}`;
 
         const fragment = document.createDocumentFragment();
         for (const book of sorted) {
@@ -164,6 +188,12 @@
     sortBy.addEventListener("change", render);
     statusFilter.addEventListener("change", render);
 
-    totalCount.textContent = books.length;
+    const ownedBooks = books.filter((b) => b.owned !== false);
+    const readOnlyBooks = books.filter((b) => b.owned === false);
+    document.getElementById("count-library").textContent = ownedBooks.length;
+    document.getElementById("count-read-only").textContent = readOnlyBooks.length;
+    document.getElementById("count-all").textContent = books.length;
+    totalCount.textContent = ownedBooks.length;
+    document.getElementById("read-only-count").textContent = readOnlyBooks.length;
     render();
 })();

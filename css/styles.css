@@ -65,6 +65,54 @@ body {
     box-shadow: var(--shadow);
 }
 
+.tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0 0 1rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    padding: 0.6rem 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.tab:hover {
+    color: var(--ink);
+}
+
+.tab.is-active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+
+.tab-count {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    background: var(--bg);
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    font-weight: 500;
+}
+
+.tab.is-active .tab-count {
+    color: var(--accent);
+    background: rgba(139, 58, 47, 0.1);
+}
+
 .search-controls {
     display: flex;
     gap: 0.75rem;

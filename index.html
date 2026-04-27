@@ -16,6 +16,17 @@
 
     <section class="search-section">
         <div class="container">
+            <nav class="tabs" role="tablist" aria-label="Secciones">
+                <button class="tab is-active" data-section="library" role="tab" aria-selected="true">
+                    Mi biblioteca <span class="tab-count" id="count-library"></span>
+                </button>
+                <button class="tab" data-section="read-only" role="tab" aria-selected="false">
+                    Leídos sin tener <span class="tab-count" id="count-read-only"></span>
+                </button>
+                <button class="tab" data-section="all" role="tab" aria-selected="false">
+                    Todos <span class="tab-count" id="count-all"></span>
+                </button>
+            </nav>
             <div class="search-controls">
                 <input
                     type="search"
@@ -57,7 +68,11 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>Biblioteca personal &middot; <span id="total-count"></span> libros catalogados</p>
+            <p>
+                Biblioteca personal &middot;
+                <span id="total-count"></span> libros físicos &middot;
+                <span id="read-only-count"></span> leídos sin tener
+            </p>
         </div>
     </footer>
 

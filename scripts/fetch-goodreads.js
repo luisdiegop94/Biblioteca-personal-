@@ -32,12 +32,18 @@ function parseItems(xml) {
     let m;
     while ((m = re.exec(xml))) {
         const block = m[1];
+        const imageUrl =
+            extractField(block, "book_large_image_url") ||
+            extractField(block, "book_medium_image_url") ||
+            extractField(block, "book_image_url") ||
+            "";
         items.push({
             title: extractField(block, "title"),
             author: extractField(block, "author_name"),
             rating: parseInt(extractField(block, "user_rating") || "0", 10) || 0,
             readAt: extractField(block, "user_read_at"),
-            shelves: extractField(block, "user_shelves")
+            shelves: extractField(block, "user_shelves"),
+            imageUrl: imageUrl.replace(/\._[A-Z0-9_]+_\.jpg$/i, ".jpg")
         });
     }
     return items;
@@ -254,9 +260,18 @@ function serialize(books) {
         if (b.coverUrl) parts.push(`coverUrl: ${JSON.stringify(b.coverUrl)}`);
         if (b.status) parts.push(`status: ${JSON.stringify(b.status)}`);
         if (typeof b.rating === "number" && b.rating > 0) parts.push(`rating: ${b.rating}`);
+        if (b.owned === false) parts.push(`owned: false`);
         return `    { ${parts.join(", ")} }`;
     });
     return `const books = [\n${lines.join(",\n")}\n];\n`;
+}
+
+function cleanGrTitle(t) {
+    // Strip Goodreads' parenthetical series suffixes for display
+    return t
+        .replace(/\s*\([^)]*#\d+[^)]*\)\s*$/, "")
+        .replace(/:\s*$/, "")
+        .trim();
 }
 
 (async () => {
@@ -272,11 +287,14 @@ function serialize(books) {
     const toRead = await fetchAllPages("to-read");
     console.log(`To-read: ${toRead.length}\n`);
 
-    const books = loadBooks();
+    const allBooks = loadBooks();
+    // Drop any previously-added "read but not owned" entries before re-syncing.
+    const books = allBooks.filter((b) => b.owned !== false);
     let matchedRead = 0;
     let matchedReading = 0;
     let matchedToRead = 0;
     let unmatched = [];
+    const matchedReadRefs = new Set();
 
     for (const b of books) {
         delete b.status;
@@ -294,6 +312,7 @@ function serialize(books) {
             b.status = "read";
             if (m.rating > 0) b.rating = m.rating;
             matchedRead++;
+            matchedReadRefs.add(m);
             console.log(`  ✓ read (${m.rating || "—"}): "${b.title}" ↔ "${m.title}"`);
             continue;
         }
@@ -307,9 +326,24 @@ function serialize(books) {
         unmatched.push(b.title);
     }
 
-    fs.writeFileSync(BOOKS_FILE, serialize(books), "utf8");
+    // Books on Goodreads "read" shelf that don't match any physical book.
+    const readNotOwned = read
+        .filter((it) => !matchedReadRefs.has(it))
+        .map((it) => ({
+            title: cleanGrTitle(it.title),
+            author: it.author || "",
+            category: "",
+            coverUrl: it.imageUrl || "",
+            status: "read",
+            rating: it.rating > 0 ? it.rating : undefined,
+            owned: false
+        }));
+
+    const finalBooks = [...books, ...readNotOwned];
+    fs.writeFileSync(BOOKS_FILE, serialize(finalBooks), "utf8");
     console.log(`\n=== Summary ===`);
-    console.log(`Read: ${matchedRead} / Reading: ${matchedReading} / To-read: ${matchedToRead}`);
-    console.log(`Unmatched: ${unmatched.length}`);
-    unmatched.forEach((t) => console.log(`  - ${t}`));
+    console.log(`Owned: ${books.length} (read ${matchedRead} / reading ${matchedReading} / to-read ${matchedToRead})`);
+    console.log(`Read but not owned: ${readNotOwned.length}`);
+    console.log(`Total entries: ${finalBooks.length}`);
+    console.log(`Unmatched owned: ${unmatched.length}`);
 })();
