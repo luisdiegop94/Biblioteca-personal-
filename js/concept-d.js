@@ -416,7 +416,7 @@ function ConceptD({
   const [view, setView] = useStateD("cover");
   const [query, setQuery] = useStateD("");
   const [selected, setSelected] = useStateD(null);
-  const [sideOpen, setSideOpen] = useStateD(false);
+  const [sideOpen, setSideOpen] = useStateD(true);
   const [collapsed, setCollapsed] = useStateD(new Set());
   const toggleShelf = name => {
     setCollapsed(prev => {
@@ -450,7 +450,13 @@ function ConceptD({
     className: "d-mast-top"
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-mast-marque"
-  }, "Catalogus"), /*#__PURE__*/React.createElement("nav", {
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "d-side-btn",
+    onClick: () => setSideOpen(o => !o),
+    "aria-label": sideOpen ? "Ocultar resumen" : "Mostrar resumen",
+    "aria-pressed": sideOpen
+  }, sideOpen ? "◧" : "◨"), "Catalogus"), /*#__PURE__*/React.createElement("nav", {
     className: "d-mast-nav"
   }, Object.entries(SECTION_META).map(([k, m]) => /*#__PURE__*/React.createElement("button", {
     key: k,
@@ -471,7 +477,7 @@ function ConceptD({
   }, today.num), /*#__PURE__*/React.createElement("div", {
     className: "d-date-mon"
   }, today.monYear)))), /*#__PURE__*/React.createElement("div", {
-    className: "d-layout"
+    className: "d-layout " + (sideOpen ? "side-open" : "side-closed")
   }, /*#__PURE__*/React.createElement("button", {
     className: "d-side-toggle " + (sideOpen ? "is-open" : ""),
     onClick: () => setSideOpen(o => !o)

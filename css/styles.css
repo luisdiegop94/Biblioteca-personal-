@@ -54,7 +54,18 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
 .d-mast-marque {
   font-family: var(--serif-display); font-style: italic;
   font-size: 18px; letter-spacing: 0.02em;
+  display: flex; align-items: center; gap: 10px;
 }
+.d-side-btn {
+  background: none; border: 1px solid var(--ink);
+  padding: 2px 7px;
+  font-size: 14px; font-style: normal;
+  color: var(--ink); cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s;
+}
+.d-side-btn:hover { background: var(--ink); color: var(--paper); }
+.d-side-btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 .d-mast-nav { display: flex; gap: 24px; }
 .d-mast-nav-btn {
   background: none; border: none;
@@ -103,10 +114,13 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
 .d-layout {
   position: relative; z-index: 1;
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 1fr;
   flex: 1;
   min-height: 0;
+  transition: grid-template-columns 0.2s;
 }
+.d-layout.side-open { grid-template-columns: 220px 1fr; }
+.d-layout.side-closed > .d-side { display: none; }
 
 /* ============ SIDEBAR (from C, restyled with B's warm palette) ============ */
 .d-side {
@@ -458,7 +472,7 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
   .d-mast-tagline { font-size: 12px; margin-top: 2px; }
   .d-date-num { font-size: 18px; }
 
-  .d-layout { grid-template-columns: 200px 1fr; }
+  .d-layout.side-open { grid-template-columns: 200px 1fr; }
   .d-side { padding: 14px 12px; gap: 14px; }
   .d-bignum { font-size: 30px; }
 
@@ -537,6 +551,9 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
   }
   .d-side-block { padding-bottom: 18px; }
   .d-bignum { font-size: 38px; }
+
+  /* Hide the desktop icon-button to avoid duplicating the big mobile toggle */
+  .d-side-btn { display: none; }
 
   /* Sidebar toggle button shows on mobile */
   .d-side-toggle {
