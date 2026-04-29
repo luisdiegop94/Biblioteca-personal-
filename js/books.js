@@ -144,6 +144,8 @@ const books = [
     { title: "Hijos de la Bruma II: El Pozo de la Ascensión", author: "Brandon Sanderson", category: "Fantasía", coverId: 14658341, status: "read", rating: 5 },
     { title: "Hijos de la Bruma III: El Héroe de las Eras", author: "Brandon Sanderson", category: "Fantasía", coverId: 14658094, status: "read", rating: 5 },
     { title: "Mito y significado", author: "Claude Lévi-Strauss", category: "Antropología", coverId: 8695485, status: "to-read" },
+    { title: "Switch: How to Change Things When Change Is Hard", author: "Chip Heath", category: "", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1422839688l/6570502.jpg", status: "read", owned: false },
+    { title: "Ownership: Reinventing Companies, Capitalism, and Who Owns What", author: "Corey Rosen", category: "", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1642987531l/59891628.jpg", status: "read", rating: 4, owned: false },
     { title: "The Price is Wrong: Why Capitalism Won't Save the Planet", author: "Brett Christophers", category: "", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1686005184l/165937650.jpg", status: "read", rating: 4, owned: false },
     { title: "How the World Made the West: A 4,000 Year History", author: "Josephine Quinn", category: "Historia", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1717437075l/203956660.jpg", status: "read", rating: 4, owned: false },
     { title: "Dune Messiah", author: "Frank Herbert", category: "Ciencia ficción", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1577043824l/44492285.jpg", status: "read", rating: 4, owned: false },
