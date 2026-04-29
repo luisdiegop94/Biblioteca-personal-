@@ -311,6 +311,16 @@ function cleanGrTitle(t) {
     }
 
     const allBooks = loadBooks();
+    // Index categories on the previously-synced "read but not owned" entries
+    // so we can carry them across the daily resync (otherwise every run
+    // overwrites the categorisation done by scripts/fetch-categories.js).
+    const prevReadOnlyCats = new Map();
+    for (const b of allBooks) {
+        if (b.owned === false && b.category) {
+            const key = norm(b.title) + "|" + norm(b.author);
+            prevReadOnlyCats.set(key, b.category);
+        }
+    }
     // Drop any previously-added "read but not owned" entries before re-syncing.
     const books = allBooks.filter((b) => b.owned !== false);
     let matchedRead = 0;
@@ -352,15 +362,20 @@ function cleanGrTitle(t) {
     // Books on Goodreads "read" shelf that don't match any physical book.
     const readNotOwned = read
         .filter((it) => !matchedReadRefs.has(it))
-        .map((it) => ({
-            title: cleanGrTitle(it.title),
-            author: it.author || "",
-            category: "",
-            coverUrl: it.imageUrl || "",
-            status: "read",
-            rating: it.rating > 0 ? it.rating : undefined,
-            owned: false
-        }));
+        .map((it) => {
+            const title = cleanGrTitle(it.title);
+            const author = it.author || "";
+            const key = norm(title) + "|" + norm(author);
+            return {
+                title,
+                author,
+                category: prevReadOnlyCats.get(key) || "",
+                coverUrl: it.imageUrl || "",
+                status: "read",
+                rating: it.rating > 0 ? it.rating : undefined,
+                owned: false
+            };
+        });
 
     const finalBooks = [...books, ...readNotOwned];
     fs.writeFileSync(BOOKS_FILE, serialize(finalBooks), "utf8");
