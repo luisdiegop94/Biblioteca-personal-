@@ -394,7 +394,7 @@ function ConceptD({
   const [view, setView] = useStateD("cover");
   const [query, setQuery] = useStateD("");
   const [selected, setSelected] = useStateD(null);
-  const [sideOpen, setSideOpen] = useStateD(true);
+  const [sideOpen, setSideOpen] = useStateD(false);
   const [collapsed, setCollapsed] = useStateD(new Set());
   const toggleShelf = name => {
     setCollapsed(prev => {
