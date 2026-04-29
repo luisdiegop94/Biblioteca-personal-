@@ -225,7 +225,6 @@ function StatsPanelD({
   const stats = LD.computeStats(books);
   const owned = books.filter(b => b.owned !== false);
   const readOnly = books.filter(b => b.owned === false);
-  const reading = LD.currentlyReading(owned);
 
   // Rating histogram (5..1)
   const ratingHist = [5, 4, 3, 2, 1].map(r => ({
@@ -367,28 +366,7 @@ function StatsPanelD({
     className: "d-stats-author-name"
   }, name), /*#__PURE__*/React.createElement("span", {
     className: "d-stats-author-count"
-  }, n))))), reading.length > 0 && /*#__PURE__*/React.createElement("section", {
-    className: "d-stats-section"
-  }, /*#__PURE__*/React.createElement("h3", {
-    className: "d-stats-h3"
-  }, "En curso"), /*#__PURE__*/React.createElement("div", {
-    className: "d-stats-reading-row"
-  }, reading.map((b, i) => /*#__PURE__*/React.createElement("button", {
-    key: i,
-    className: "d-stats-reading-card",
-    onClick: () => onSelectBook(b)
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "d-stats-reading-cover"
-  }, /*#__PURE__*/React.createElement(CoverD, {
-    book: b,
-    size: "M"
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "d-stats-reading-meta"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "d-stats-reading-title"
-  }, b.title), /*#__PURE__*/React.createElement("div", {
-    className: "d-stats-reading-author"
-  }, b.author)))))));
+  }, n))))));
 }
 const SECTION_META = {
   library: {
@@ -431,7 +409,6 @@ function ConceptD({
   const readOnly = useMemoD(() => books.filter(b => b.owned === false), [books]);
   const toRead = useMemoD(() => books.filter(b => b.status === "to-read"), [books]);
   const stats = useMemoD(() => LD.computeStats(books), [books]);
-  const reading = useMemoD(() => LD.currentlyReading(owned), [owned]);
   const sectionBooks = useMemoD(() => {
     if (section === "readonly") return readOnly;
     if (section === "toread") return toRead;
@@ -558,39 +535,7 @@ function ConceptD({
     className: "d-top-name"
   }, n), /*#__PURE__*/React.createElement("span", {
     className: "d-top-count"
-  }, c))))), reading.length > 0 && /*#__PURE__*/React.createElement("div", {
-    className: "d-side-block d-side-reading"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "d-side-h"
-  }, "En curso"), reading.map((b, i) => {
-    const colors = LD.spineColors(b);
-    const progress = 20 + LD.hash(b.title) % 75;
-    return /*#__PURE__*/React.createElement("button", {
-      key: i,
-      className: "d-side-reading-card",
-      onClick: () => setSelected(b)
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "d-side-reading-cover"
-    }, /*#__PURE__*/React.createElement(CoverD, {
-      book: b,
-      size: "M"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "d-side-reading-meta"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "d-side-reading-title"
-    }, b.title), /*#__PURE__*/React.createElement("div", {
-      className: "d-side-reading-author"
-    }, b.author), /*#__PURE__*/React.createElement("div", {
-      className: "d-side-reading-bar"
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        width: progress + "%",
-        background: colors.accent
-      }
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "d-side-reading-pct"
-    }, progress, "%")));
-  }))), /*#__PURE__*/React.createElement("main", {
+  }, c)))))), /*#__PURE__*/React.createElement("main", {
     className: "d-main"
   }, !isStats && /*#__PURE__*/React.createElement("div", {
     className: "d-toolbar"
