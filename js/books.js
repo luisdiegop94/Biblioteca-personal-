@@ -99,7 +99,7 @@ const books = [
     { title: "Las leyes del Serengeti", author: "Sean B. Carroll", category: "Biología", coverId: 8881359 },
     { title: "Frankenstein", author: "Mary Shelley", category: "Novela clásica", coverId: 12356249, status: "read", rating: 3 },
     { title: "Dictadores", author: "Frank Dikötter", category: "Historia política", coverId: 10869587 },
-    { title: "Charlatanes", author: "Moisés Naím y Quico Toro", category: "Política", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1738639001i/225819376.jpg" },
+    { title: "Charlatanes", author: "Moisés Naím y Quico Toro", category: "Política", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1738639001i/225819376.jpg", status: "reading" },
     { title: "La sociedad de la transparencia", author: "Byung-Chul Han", category: "Filosofía", coverId: 8083811 },
     { title: "Si mi biblioteca ardiera esta noche", author: "Aldous Huxley", category: "Ensayo", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1289005233i/9649980.jpg", status: "to-read" },
     { title: "Cartas a Lucilio", author: "Lucio Anneo Séneca", category: "Filosofía clásica", coverId: 8256111 },
