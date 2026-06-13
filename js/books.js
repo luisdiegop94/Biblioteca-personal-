@@ -107,7 +107,7 @@ const books = [
     { title: "El lecho de Procusto", author: "Nassim Nicholas Taleb", category: "Filosofía", coverId: 14156240, status: "read", rating: 5 },
     { title: "Cuentos imprescindibles del siglo XX de América Latina", author: "Varios autores", category: "Antología", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1753467428i/238970160.jpg" },
     { title: "How to Diagnose and Fix Everything Electronic", author: "Michael Jay Geier", category: "Electrónica", coverId: 9594813 },
-    { title: "El arte de no ser gobernados", author: "James C. Scott", category: "Antropología política", coverId: 6289268, status: "reading" },
+    { title: "El arte de no ser gobernados", author: "James C. Scott", category: "Antropología política", coverId: 6289268, status: "read", rating: 4 },
     { title: "Meditaciones", author: "Marco Aurelio", category: "Filosofía clásica", coverId: 10469464, status: "read", rating: 5 },
     { title: "Dominio", author: "Tom Holland", category: "Historia", coverId: 13458584, status: "read", rating: 4 },
     { title: "Miradas sobre la desigualdad", author: "Branko Milanović", category: "Economía", coverUrl: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1715966942i/206801504.jpg" },
