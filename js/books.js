@@ -447,5 +447,6 @@ const books = [
     { title: "Química agroindustrial I", author: "Hermes Alvarado Montero y Carlos Alberto Vega Aguilar", category: "Química / Agricultura" },
     { title: "Cartografía geológica de la Península de Nicoya: Estratigrafía y tectónica", author: "Denyer, Aguilar y Montero", category: "Geología" },
     { title: "Metodología de la investigación", author: "Hernández Sampieri, Fernández Collado y Baptista Lucio", category: "Metodología de investigación" },
-    { title: "Las aventuras de Huckleberry Finn", author: "Mark Twain", category: "Novela clásica" }
+    { title: "Las aventuras de Huckleberry Finn", author: "Mark Twain", category: "Novela clásica" },
+    { title: "Sentido y sensibilidad", author: "Jane Austen", category: "Novela clásica" }
 ];
