@@ -79,6 +79,7 @@ function serialize(books) {
         if (b.coverUrl) parts.push(`coverUrl: ${JSON.stringify(b.coverUrl)}`);
         if (b.status) parts.push(`status: ${JSON.stringify(b.status)}`);
         if (typeof b.rating === "number" && b.rating > 0) parts.push(`rating: ${b.rating}`);
+        if (b.description) parts.push(`description: ${JSON.stringify(b.description)}`);
         if (b.owned === false) parts.push(`owned: false`);
         return `    { ${parts.join(", ")} }`;
     });

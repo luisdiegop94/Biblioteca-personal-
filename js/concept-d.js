@@ -214,7 +214,9 @@ function DetailD({
   }, [1, 2, 3, 4, 5].map(i => /*#__PURE__*/React.createElement("span", {
     key: i,
     className: "d-big-star " + (i <= book.rating ? "on" : "")
-  }, "\u2605"))), /*#__PURE__*/React.createElement("p", {
+  }, "\u2605"))), book.description && /*#__PURE__*/React.createElement("p", {
+    className: "d-detail-desc"
+  }, book.description), /*#__PURE__*/React.createElement("p", {
     className: "d-detail-note"
   }, "Reposando en el estante de ", /*#__PURE__*/React.createElement("em", null, LD.shelfFor(book)), ".")))));
 }
