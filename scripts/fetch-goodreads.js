@@ -330,6 +330,7 @@ function cleanGrTitle(t) {
     let matchedToRead = 0;
     let unmatched = [];
     const matchedReadRefs = new Set();
+    const matchedToReadRefs = new Set();
 
     for (const b of books) {
         delete b.status;
@@ -355,6 +356,7 @@ function cleanGrTitle(t) {
         if (t) {
             b.status = "to-read";
             matchedToRead++;
+            matchedToReadRefs.add(t);
             console.log(`  · to-read: "${b.title}" ↔ "${t.title}"`);
             continue;
         }
@@ -379,11 +381,31 @@ function cleanGrTitle(t) {
             };
         });
 
-    const finalBooks = [...books, ...readNotOwned];
+    // Books on Goodreads "to-read" shelf that don't match any physical book.
+    // Sin esto, la sección "Por leer" solo veía libros que ya estaban en la
+    // biblioteca, escondiendo todo lo que el usuario quiere leer y aún no tiene.
+    const toReadNotOwned = toRead
+        .filter((it) => !matchedToReadRefs.has(it))
+        .map((it) => {
+            const title = cleanGrTitle(it.title);
+            const author = it.author || "";
+            const key = norm(title) + "|" + norm(author);
+            return {
+                title,
+                author,
+                category: prevReadOnlyCats.get(key) || "",
+                coverUrl: it.imageUrl || "",
+                status: "to-read",
+                owned: false
+            };
+        });
+
+    const finalBooks = [...books, ...readNotOwned, ...toReadNotOwned];
     fs.writeFileSync(BOOKS_FILE, serialize(finalBooks), "utf8");
     console.log(`\n=== Summary ===`);
     console.log(`Owned: ${books.length} (read ${matchedRead} / reading ${matchedReading} / to-read ${matchedToRead})`);
     console.log(`Read but not owned: ${readNotOwned.length}`);
+    console.log(`To-read but not owned: ${toReadNotOwned.length}`);
     console.log(`Total entries: ${finalBooks.length}`);
     console.log(`Unmatched owned: ${unmatched.length}`);
 })();
