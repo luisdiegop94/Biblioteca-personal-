@@ -192,7 +192,7 @@ function DetailD({
     className: "d-detail-cover"
   }, /*#__PURE__*/React.createElement(CoverD, {
     book: book,
-    size: "L"
+    size: "M"
   })), /*#__PURE__*/React.createElement("div", {
     className: "d-detail-info"
   }, /*#__PURE__*/React.createElement("div", {
@@ -400,15 +400,18 @@ function ConceptD({
   const [selected, setSelected] = useStateD(null);
   const [sideOpen, setSideOpen] = useStateD(false);
   const [collapsed, setCollapsed] = useStateD(new Set());
+  const [userTouchedCollapse, setUserTouchedCollapse] = useStateD(false);
+  const isMobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
   const toggleShelf = name => {
+    setUserTouchedCollapse(true);
     setCollapsed(prev => {
       const next = new Set(prev);
       if (next.has(name)) next.delete(name);else next.add(name);
       return next;
     });
   };
-  const collapseAll = names => setCollapsed(new Set(names));
-  const expandAll = () => setCollapsed(new Set());
+  const collapseAll = names => { setUserTouchedCollapse(true); setCollapsed(new Set(names)); };
+  const expandAll = () => { setUserTouchedCollapse(true); setCollapsed(new Set()); };
   const owned = useMemoD(() => books.filter(b => b.owned !== false), [books]);
   const readOnly = useMemoD(() => books.filter(b => b.owned === false), [books]);
   const toRead = useMemoD(() => books.filter(b => b.status === "to-read"), [books]);
@@ -420,6 +423,11 @@ function ConceptD({
   }, [section, owned, readOnly, toRead]);
   const filtered = useMemoD(() => sectionBooks.filter(b => LD.matches(b, query)), [sectionBooks, query]);
   const grouped = useMemoD(() => LD.groupBooks(filtered, organize), [filtered, organize]);
+  // On mobile, start with every shelf collapsed for performance.
+  const effectiveCollapsed = useMemoD(
+    () => !userTouchedCollapse && isMobile ? new Set(grouped.map(([n]) => n)) : collapsed,
+    [userTouchedCollapse, isMobile, collapsed, grouped]
+  );
   const today = todayParts();
   const isStats = section === "stats";
   const tagline = section === "library" ? `Tu biblioteca: ${owned.length} volúmenes — leídos, leyéndose, esperando turno.` : section === "readonly" ? `${readOnly.length} libros que has leído pero no están en la estantería.` : section === "toread" ? `${toRead.length} libros marcados como pendientes de lectura.` : `Vista panorámica de la colección completa (${stats.total} volúmenes).`;
@@ -570,8 +578,8 @@ function ConceptD({
     className: "d-toolbar-group"
   }, /*#__PURE__*/React.createElement("button", {
     className: "d-chip",
-    onClick: () => collapsed.size === grouped.length ? expandAll() : collapseAll(grouped.map(([n]) => n))
-  }, collapsed.size === grouped.length && grouped.length > 0 ? "Expandir todo" : "Contraer todo"))), isStats ? /*#__PURE__*/React.createElement(StatsPanelD, {
+    onClick: () => effectiveCollapsed.size === grouped.length ? expandAll() : collapseAll(grouped.map(([n]) => n))
+  }, effectiveCollapsed.size === grouped.length && grouped.length > 0 ? "Expandir todo" : "Contraer todo"))), isStats ? /*#__PURE__*/React.createElement(StatsPanelD, {
     books: books,
     onSelectBook: setSelected
   }) : grouped.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -586,7 +594,7 @@ function ConceptD({
     onSelect: setSelected,
     selected: selected,
     idx: i + 1,
-    collapsed: collapsed.has(name),
+    collapsed: effectiveCollapsed.has(name),
     onToggle: () => toggleShelf(name)
   }))))), /*#__PURE__*/React.createElement(DetailD, {
     book: selected,
