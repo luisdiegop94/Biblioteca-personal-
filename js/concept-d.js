@@ -2,9 +2,17 @@
 // Concept D: hybrid — A's editorial masthead + C's sidebar layout + B's vitrina shelves.
 const {
   useState: useStateD,
-  useMemo: useMemoD
+  useMemo: useMemoD,
+  useEffect: useEffectD,
+  useRef: useRefD
 } = React;
 const LD = window.LibLib;
+const SECTION_KEYS = ["library", "readonly", "toread", "stats"];
+function sectionFromHash() {
+  if (typeof window === "undefined") return "library";
+  const h = window.location.hash.slice(1);
+  return SECTION_KEYS.includes(h) ? h : "library";
+}
 const DOW_ES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const MONTH_ES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
 function todayParts() {
@@ -78,7 +86,7 @@ function SpineD({
       background: `linear-gradient(90deg, ${colors.bg}, ${shadeD(colors.bg, 8)} 50%, ${colors.bg})`,
       color: colors.ink
     },
-    onClick: () => onSelect(book),
+    onClick: e => onSelect(book, e),
     "aria-label": book.title
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-spine-band",
@@ -103,7 +111,7 @@ function CardD({
 }) {
   return /*#__PURE__*/React.createElement("button", {
     className: "d-card " + (isSelected ? "is-selected" : ""),
-    onClick: () => onSelect(book)
+    onClick: e => onSelect(book, e)
   }, /*#__PURE__*/React.createElement("div", {
     className: "d-card-cover"
   }, /*#__PURE__*/React.createElement(CoverD, {
@@ -393,15 +401,52 @@ const SECTION_META = {
 function ConceptD({
   books
 }) {
-  const [section, setSection] = useStateD("library");
+  const [section, setSection] = useStateD(sectionFromHash);
   const [organize, setOrganize] = useStateD("shelf");
   const [view, setView] = useStateD("cover");
   const [query, setQuery] = useStateD("");
+  const [statusFilter, setStatusFilter] = useStateD("all");
   const [selected, setSelected] = useStateD(null);
   const [sideOpen, setSideOpen] = useStateD(false);
   const [collapsed, setCollapsed] = useStateD(new Set());
   const [userTouchedCollapse, setUserTouchedCollapse] = useStateD(false);
+  const lastTriggerRef = useRefD(null);
   const isMobile = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
+
+  // Sync section ↔ URL hash (back/forward, reload, link sharing).
+  useEffectD(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash.slice(1) !== section) {
+      window.history.replaceState(null, "", "#" + section);
+    }
+  }, [section]);
+  useEffectD(() => {
+    if (typeof window === "undefined") return;
+    const onHash = () => setSection(sectionFromHash());
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  // Escape key closes the detail dialog.
+  useEffectD(() => {
+    if (!selected || typeof document === "undefined") return;
+    const onKey = (e) => { if (e.key === "Escape") setSelected(null); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selected]);
+
+  // Return focus to the card that opened the detail.
+  useEffectD(() => {
+    if (selected === null && lastTriggerRef.current) {
+      try { lastTriggerRef.current.focus(); } catch (_) {}
+      lastTriggerRef.current = null;
+    }
+  }, [selected]);
+
+  const openDetail = (book, e) => {
+    if (e && e.currentTarget) lastTriggerRef.current = e.currentTarget;
+    setSelected(book);
+  };
   const toggleShelf = name => {
     setUserTouchedCollapse(true);
     setCollapsed(prev => {
@@ -421,7 +466,13 @@ function ConceptD({
     if (section === "toread") return toRead;
     return owned;
   }, [section, owned, readOnly, toRead]);
-  const filtered = useMemoD(() => sectionBooks.filter(b => LD.matches(b, query)), [sectionBooks, query]);
+  const filtered = useMemoD(() => {
+    let r = sectionBooks.filter(b => LD.matches(b, query));
+    if (statusFilter !== "all") {
+      r = r.filter(b => statusFilter === "none" ? !b.status : b.status === statusFilter);
+    }
+    return r;
+  }, [sectionBooks, query, statusFilter]);
   const grouped = useMemoD(() => LD.groupBooks(filtered, organize), [filtered, organize]);
   // On mobile, start with every shelf collapsed for performance.
   const effectiveCollapsed = useMemoD(
@@ -551,12 +602,23 @@ function ConceptD({
     className: "d-main"
   }, !isStats && /*#__PURE__*/React.createElement("div", {
     className: "d-toolbar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "d-search-wrap"
   }, /*#__PURE__*/React.createElement("input", {
     className: "d-search",
     placeholder: "\uD83D\uDD0D  Buscar t\xEDtulo o autor",
+    "aria-label": "Buscar libros por t\xEDtulo o autor",
     value: query,
     onChange: e => setQuery(e.target.value)
-  }), /*#__PURE__*/React.createElement("div", {
+  }), query && /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "d-search-clear",
+    "aria-label": "Borrar b\xFAsqueda",
+    onClick: () => setQuery("")
+  }, "\xD7")), query && /*#__PURE__*/React.createElement("span", {
+    className: "d-search-meta",
+    "aria-live": "polite"
+  }, filtered.length, " de ", sectionBooks.length), /*#__PURE__*/React.createElement("div", {
     className: "d-toolbar-group"
   }, /*#__PURE__*/React.createElement("span", {
     className: "d-toolbar-label"
@@ -564,6 +626,14 @@ function ConceptD({
     key: k,
     className: "d-chip " + (organize === k ? "is-on" : ""),
     onClick: () => setOrganize(k)
+  }, l))), /*#__PURE__*/React.createElement("div", {
+    className: "d-toolbar-group"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "d-toolbar-label"
+  }, "Estado"), [["all", "Todos"], ["read", "Le\xEDdos"], ["reading", "Leyendo"], ["to-read", "Por leer"], ["none", "Sin marcar"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    className: "d-chip " + (statusFilter === k ? "is-on" : ""),
+    onClick: () => setStatusFilter(k)
   }, l))), /*#__PURE__*/React.createElement("div", {
     className: "d-toolbar-group"
   }, /*#__PURE__*/React.createElement("span", {
@@ -591,7 +661,7 @@ function ConceptD({
     title: name,
     books: list,
     view: view,
-    onSelect: setSelected,
+    onSelect: openDetail,
     selected: selected,
     idx: i + 1,
     collapsed: effectiveCollapsed.has(name),
