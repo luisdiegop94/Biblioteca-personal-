@@ -216,7 +216,9 @@ function DetailD({
     className: "d-big-star " + (i <= book.rating ? "on" : "")
   }, "\u2605"))), book.description && /*#__PURE__*/React.createElement("p", {
     className: "d-detail-desc"
-  }, book.description), /*#__PURE__*/React.createElement("p", {
+  }, book.description, book.descriptionAi && /*#__PURE__*/React.createElement("span", {
+    className: "d-detail-ai"
+  }, " \u00b7 ", /*#__PURE__*/React.createElement("em", null, "Descripci\u00f3n generada con IA"))), /*#__PURE__*/React.createElement("p", {
     className: "d-detail-note"
   }, "Reposando en el estante de ", /*#__PURE__*/React.createElement("em", null, LD.shelfFor(book)), ".")))));
 }

@@ -462,6 +462,10 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
   font-family: var(--serif-text);
   text-wrap: pretty;
 }
+.d-detail-ai {
+  color: var(--ink-soft); font-size: 13px;
+  white-space: nowrap;
+}
 .d-detail-note {
   font-size: 15px; color: var(--ink-2);
   font-style: italic; margin: 0;
