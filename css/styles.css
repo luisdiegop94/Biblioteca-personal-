@@ -464,8 +464,8 @@ html, body { margin: 0; padding: 0; height: 100%; background: #f3ece0; font-fami
 .d-big-star { font-size: 26px; color: var(--rule); margin-right: 2px; }
 .d-big-star.on { color: var(--accent, var(--terracotta)); }
 .d-detail-desc {
-  font-size: 15px; color: var(--ink);
-  line-height: 1.55; margin: 0 0 16px;
+  font-size: 16px; color: var(--ink);
+  line-height: 1.6; margin: 0 0 16px;
   font-family: var(--serif-text);
   text-wrap: pretty;
 }
