@@ -26,6 +26,30 @@ function extractField(itemXml, name) {
     return m ? decodeCdata(m[1].trim()) : "";
 }
 
+function cleanGrDescription(html) {
+    if (!html) return "";
+    return html
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/?p[^>]*>/gi, "\n")
+        .replace(/<[^>]+>/g, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;|&apos;/g, "'")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&hellip;/g, "…")
+        .replace(/&mdash;/g, "—")
+        .replace(/&ndash;/g, "–")
+        .replace(/&rsquo;|&lsquo;/g, "'")
+        .replace(/&rdquo;|&ldquo;/g, '"')
+        .replace(/\r/g, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .replace(/[ \t]+\n/g, "\n")
+        .trim()
+        .slice(0, 1500);
+}
+
 function parseItems(xml) {
     const items = [];
     const re = /<item>([\s\S]*?)<\/item>/g;
@@ -46,7 +70,8 @@ function parseItems(xml) {
             rating: parseInt(extractField(block, "user_rating") || "0", 10) || 0,
             readAt: extractField(block, "user_read_at"),
             shelves: extractField(block, "user_shelves"),
-            imageUrl: cleanImage
+            imageUrl: cleanImage,
+            description: cleanGrDescription(extractField(block, "book_description"))
         });
     }
     return items;
@@ -313,14 +338,19 @@ function cleanGrTitle(t) {
     }
 
     const allBooks = loadBooks();
-    // Index categories on the previously-synced "read but not owned" entries
-    // so we can carry them across the daily resync (otherwise every run
-    // overwrites the categorisation done by scripts/fetch-categories.js).
+    // Index categories AND descriptions on the previously-synced "owned:false"
+    // entries so we can carry them across the daily resync (otherwise every
+    // run overwrites the categorisation and the AI-written descriptions).
     const prevReadOnlyCats = new Map();
+    const prevReadOnlyDescs = new Map();
     for (const b of allBooks) {
-        if (b.owned === false && b.category) {
+        if (b.owned === false) {
             const key = norm(b.title) + "|" + norm(b.author);
-            prevReadOnlyCats.set(key, b.category);
+            if (b.category) prevReadOnlyCats.set(key, b.category);
+            if (b.description) prevReadOnlyDescs.set(key, {
+                description: b.description,
+                descriptionAi: !!b.descriptionAi
+            });
         }
     }
     // Drop any previously-added "read but not owned" entries before re-syncing.
@@ -363,6 +393,17 @@ function cleanGrTitle(t) {
         unmatched.push(b.title);
     }
 
+    // Pick whatever description we already have for this book; otherwise
+    // fall back to the description shipped in the Goodreads RSS feed.
+    // The AI-generated descriptions (descriptionAi:true) always win because
+    // they don't mention the author, per the user's preference.
+    const pickDescription = (key, rssDescription) => {
+        const prev = prevReadOnlyDescs.get(key);
+        if (prev?.description) return prev;
+        if (rssDescription) return { description: rssDescription, descriptionAi: false };
+        return { description: "", descriptionAi: false };
+    };
+
     // Books on Goodreads "read" shelf that don't match any physical book.
     const readNotOwned = read
         .filter((it) => !matchedReadRefs.has(it))
@@ -370,6 +411,7 @@ function cleanGrTitle(t) {
             const title = cleanGrTitle(it.title);
             const author = it.author || "";
             const key = norm(title) + "|" + norm(author);
+            const { description, descriptionAi } = pickDescription(key, it.description);
             return {
                 title,
                 author,
@@ -377,6 +419,8 @@ function cleanGrTitle(t) {
                 coverUrl: it.imageUrl || "",
                 status: "read",
                 rating: it.rating > 0 ? it.rating : undefined,
+                description: description || undefined,
+                descriptionAi: descriptionAi || undefined,
                 owned: false
             };
         });
@@ -390,12 +434,15 @@ function cleanGrTitle(t) {
             const title = cleanGrTitle(it.title);
             const author = it.author || "";
             const key = norm(title) + "|" + norm(author);
+            const { description, descriptionAi } = pickDescription(key, it.description);
             return {
                 title,
                 author,
                 category: prevReadOnlyCats.get(key) || "",
                 coverUrl: it.imageUrl || "",
                 status: "to-read",
+                description: description || undefined,
+                descriptionAi: descriptionAi || undefined,
                 owned: false
             };
         });
